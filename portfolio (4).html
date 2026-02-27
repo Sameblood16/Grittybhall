@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPERATOR — 25 YEARS IN MOTION</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   RESET + ROOT
+============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black:     #080807;
+  --coal:      #111110;
+  --pitch:     #0d0d0c;
+  --amber:     #E8530A;
+  --amber-dim: #7a2c05;
+  --green:     #00FF41;
+  --cream:     #F2EDE4;
+  --smoke:     #3a3a38;
+  --dim:       #6b6b68;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--cream);
+  font-family: 'IBM Plex Mono', monospace;
+  cursor: crosshair;
+  overflow-x: hidden;
+}
+::selection { background: var(--amber); color: var(--black); }
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--amber); }
+
+/* ============================================================
+   GRAIN + SCANLINES (fixed overlays, no content blocking)
+============================================================ */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 120px;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+}
+
+/* ============================================================
+   ANIMATIONS
+============================================================ */
+@keyframes glitch-1 {
+  0%,91%,100% { clip-path:inset(0 0 100% 0); transform:translateX(0); }
+  92% { clip-path:inset(20% 0 60% 0); transform:translateX(-4px); }
+  93% { clip-path:inset(50% 0 30% 0); transform:translateX(4px); }
+  94% { clip-path:inset(10% 0 80% 0); transform:translateX(-2px); }
+  95% { clip-path:inset(0 0 100% 0); }
+}
+@keyframes glitch-2 {
+  0%,91%,100% { clip-path:inset(0 0 100% 0); transform:translateX(0); }
+  92% { clip-path:inset(60% 0 20% 0); transform:translateX(5px); }
+  93% { clip-path:inset(30% 0 50% 0); transform:translateX(-3px); }
+  94% { clip-path:inset(80% 0 5% 0);  transform:translateX(2px); }
+  95% { clip-path:inset(0 0 100% 0); }
+}
+@keyframes flicker {
+  0%,88%,100% { opacity:1; }
+  89% { opacity:0.4; } 90% { opacity:1; }
+  94% { opacity:0.75; } 95% { opacity:1; }
+}
+@keyframes ticker { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+@keyframes pulse  { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes tc-blink { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+@keyframes scan-line { 0% { transform:translateY(-100vh); } 100% { transform:translateY(100vh); } }
+@keyframes drift {
+  0%,100% { transform:scale(1.07) translate(0,0); }
+  33% { transform:scale(1.07) translate(5px,-7px); }
+  66% { transform:scale(1.07) translate(-4px,5px); }
+}
+
+/* ============================================================
+   SCAN LINE SWEEP
+============================================================ */
+.scan-sweep {
+  position:fixed; top:0; left:0; right:0; height:4px;
+  background:linear-gradient(transparent, rgba(232,83,10,0.11), transparent);
+  z-index:9997; pointer-events:none;
+  animation:scan-line 10s linear infinite;
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  padding:18px 28px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  pointer-events:none;
+}
+.nav-id {
+  pointer-events:all;
+  font-size:10px; letter-spacing:0.2em; color:var(--amber);
+  line-height:1.9; text-transform:uppercase; text-decoration:none;
+}
+.nav-id span { display:block; color:var(--dim); font-size:9px; }
+.nav-links {
+  pointer-events:all;
+  display:flex; flex-direction:column; align-items:flex-end; gap:5px;
+}
+.nav-links a {
+  font-size:10px; letter-spacing:0.15em; color:var(--dim);
+  text-decoration:none; text-transform:uppercase;
+  transition:color 0.2s; display:flex; align-items:center; gap:8px;
+}
+.nav-links a::before { content:'//'; color:var(--amber-dim); font-size:9px; transition:color 0.2s; }
+.nav-links a:hover,
+.nav-links a:hover::before { color:var(--amber); }
+
+/* ============================================================
+   HERO
+============================================================ */
+#hero {
+  min-height:100vh; position:relative; overflow:hidden; background:var(--black);
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background:url('1J3A1051.JPG') center/cover no-repeat;
+  filter:brightness(0.15) saturate(0.22);
+  animation:drift 22s ease-in-out infinite;
+}
+.hero-vignette {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 50%, transparent 32%, var(--black) 87%),
+    linear-gradient(to bottom, var(--black) 0%, transparent 16%, transparent 66%, var(--black) 100%);
+}
+.hero-inner {
+  position:relative; z-index:10; min-height:100vh;
+  padding:140px 40px 60px;
+  display:grid;
+  grid-template-columns:1fr 300px;
+  grid-template-rows:1fr auto auto;
+}
+.hero-title { grid-column:1; grid-row:2; }
+.hero-eyebrow {
+  font-size:10px; letter-spacing:0.25em; color:var(--amber);
+  text-transform:uppercase; margin-bottom:28px;
+  display:flex; align-items:center; gap:14px;
+}
+.hero-eyebrow::before { content:''; width:40px; height:1px; background:var(--amber); flex-shrink:0; }
+.rec {
+  display:inline-block; width:7px; height:7px; border-radius:50%;
+  background:#ff2020; animation:pulse 1s ease-in-out infinite; vertical-align:middle; margin-right:4px;
+}
+.hero-name {
+  font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:clamp(86px,13vw,196px); text-transform:uppercase;
+  letter-spacing:-0.03em; line-height:0.85; color:var(--cream);
+  position:relative; animation:flicker 9s ease-in-out infinite;
+}
+.hero-name .g1,
+.hero-name .g2 { position:absolute; inset:0; }
+.hero-name .g1 { color:var(--amber); animation:glitch-1 9s ease-in-out infinite; }
+.hero-name .g2 { color:var(--green);  animation:glitch-2 9s ease-in-out infinite 0.1s; }
+.hero-sub {
+  font-family:'Barlow Condensed',sans-serif; font-weight:300;
+  font-size:clamp(34px,5vw,76px); text-transform:uppercase;
+  letter-spacing:0.06em; color:var(--dim); line-height:1; margin-top:10px;
+}
+
+.hero-sidebar {
+  grid-column:2; grid-row:1/4;
+  display:flex; flex-direction:column; justify-content:center; gap:34px;
+  padding-left:28px; margin-left:18px;
+  border-left:1px solid var(--smoke); padding-bottom:60px;
+}
+.meta-block { text-align:right; font-size:9px; letter-spacing:0.14em; color:var(--dim); text-transform:uppercase; line-height:2; }
+.meta-block strong { display:block; color:var(--amber); font-size:11px; margin-bottom:4px; }
+.timecode { font-size:13px; color:var(--amber); letter-spacing:0.1em; animation:tc-blink 1s ease-in-out infinite; }
+.avail { display:inline-flex; align-items:center; gap:6px; color:var(--green); justify-content:flex-end; }
+.avail::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.5s ease-in-out infinite; }
+
+.hero-stats {
+  grid-column:1; grid-row:3;
+  display:flex; justify-content:space-between; align-items:flex-end;
+  padding-top:60px; padding-bottom:40px;
+}
+.stat { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.15em; }
+.stat strong {
+  display:block; font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:52px; color:var(--cream); letter-spacing:-0.02em; line-height:1; margin-bottom:4px;
+}
+.scroll-hint {
+  font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.2em;
+  writing-mode:vertical-rl; display:flex; align-items:center; gap:10px;
+}
+.scroll-hint::after { content:''; width:1px; height:56px; background:linear-gradient(var(--amber),transparent); }
+
+/* ============================================================
+   FEED
+============================================================ */
+#feed { background:var(--pitch); border-top:1px solid var(--smoke); }
+.feed-header {
+  padding:80px 40px 0;
+  display:flex; justify-content:space-between; align-items:baseline;
+}
+.feed-header h2 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:clamp(56px,8vw,116px); text-transform:uppercase;
+  letter-spacing:-0.02em; line-height:1; color:var(--cream);
+}
+.feed-meta { font-size:10px; color:var(--dim); text-align:right; letter-spacing:0.1em; line-height:2; text-transform:uppercase; }
+.feed-meta span { color:var(--amber); }
+
+/* ============================================================
+   MONITOR GRID
+   Row 1: 3 video embeds (16:9)
+   Row 2: 3 photos (4:3)
+   Row 3: 1 wide banner photo
+============================================================ */
+.monitor-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:3px;
+  margin-top:40px;
+  border-top:2px solid var(--smoke);
+  background:#000;
+}
+
+.monitor {
+  position:relative; overflow:hidden; background:#000; cursor:crosshair;
+}
+
+/* Aspect ratio spacers via ::after pseudo */
+.ar-16-9::after  { content:''; display:block; padding-bottom:56.25%; }
+.ar-4-3::after   { content:''; display:block; padding-bottom:75%; }
+.ar-wide::after  { content:''; display:block; padding-bottom:30%; }
+
+/* Grid placements */
+.m-v1 { grid-column:1; grid-row:1; }
+.m-v2 { grid-column:2; grid-row:1; }
+.m-v3 { grid-column:3; grid-row:1; }
+.m-p1 { grid-column:1; grid-row:2; }
+.m-p2 { grid-column:2; grid-row:2; }
+.m-p3 { grid-column:3; grid-row:2; }
+.m-banner { grid-column:1/4; grid-row:3; }
+
+/* All content fills absolutely */
+.monitor iframe,
+.monitor img {
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+  border:none; display:block; z-index:1;
+}
+.monitor img {
+  object-fit:cover;
+  filter:brightness(0.7) saturate(0.6) contrast(1.1);
+  transition:filter 0.5s ease, transform 0.6s ease;
+}
+.monitor:hover img {
+  filter:brightness(0.88) saturate(0.85) contrast(1.05);
+  transform:scale(1.035);
+}
+
+/* Scanline veil */
+.monitor::before {
+  content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+  z-index:5; pointer-events:none;
+}
+
+/* HUD overlay */
+.hud {
+  position:absolute; inset:0; z-index:6; padding:14px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  pointer-events:none;
+}
+.hud-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.hud-bot { display:flex; justify-content:space-between; align-items:flex-end; }
+
+.tally {
+  display:inline-flex; align-items:center; gap:5px; color:#ff2020;
+  font-size:9px; letter-spacing:0.15em; text-transform:uppercase;
+  background:rgba(8,8,7,0.88); padding:4px 8px;
+  border:1px solid rgba(255,32,32,0.35);
+}
+.tally::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:#ff2020; animation:pulse 1s ease-in-out infinite; flex-shrink:0;
+}
+.hud-badge {
+  font-size:9px; letter-spacing:0.15em; color:var(--amber);
+  background:rgba(8,8,7,0.88); padding:4px 8px;
+  text-transform:uppercase; border:1px solid var(--amber-dim);
+}
+.hud-cam {
+  font-size:8px; color:var(--dim); text-align:right; line-height:1.9;
+  background:rgba(8,8,7,0.7); padding:4px 8px;
+  text-transform:uppercase; letter-spacing:0.1em;
+}
+.hud-label {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:clamp(13px,1.8vw,26px); text-transform:uppercase; color:var(--cream);
+  background:rgba(8,8,7,0.75); padding:5px 10px;
+  letter-spacing:-0.01em; line-height:1.15;
+  transform:translateY(8px); opacity:0;
+  transition:transform 0.35s ease, opacity 0.35s ease;
+}
+.monitor:hover .hud-label { transform:translateY(0); opacity:1; }
+.hud-year {
+  font-size:9px; color:var(--dim);
+  background:rgba(8,8,7,0.88); padding:4px 8px;
+  text-transform:uppercase; letter-spacing:0.1em;
+}
+
+/* Corner registration marks */
+.cm { position:absolute; width:14px; height:14px; pointer-events:none; z-index:7; }
+.cm.tl { top:8px;    left:8px;   border-top:1px solid var(--amber); border-left:1px solid var(--amber); }
+.cm.tr { top:8px;    right:8px;  border-top:1px solid var(--amber); border-right:1px solid var(--amber); }
+.cm.bl { bottom:8px; left:8px;   border-bottom:1px solid var(--amber); border-left:1px solid var(--amber); }
+.cm.br { bottom:8px; right:8px;  border-bottom:1px solid var(--amber); border-right:1px solid var(--amber); }
+
+/* ============================================================
+   TICKER
+============================================================ */
+.ticker-wrap { background:var(--amber); overflow:hidden; }
+.ticker-inner { display:flex; width:max-content; animation:ticker 28s linear infinite; }
+.ticker-inner:hover { animation-play-state:paused; }
+.t-item {
+  font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:14px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--black); padding:11px 28px; white-space:nowrap;
+}
+.t-sep { color:rgba(0,0,0,0.28); }
+
+/* ============================================================
+   MANIFESTO / ABOUT
+============================================================ */
+#manifesto {
+  padding:120px 0;
+  display:grid;
+  grid-template-columns:72px 1fr 400px 72px;
+  grid-template-rows:auto auto;
+  gap:0 40px;
+  background:var(--black);
+  border-top:1px solid var(--smoke);
+  position:relative;
+}
+#manifesto::before {
+  content:'OPERATOR';
+  position:absolute; top:50%; left:-50px;
+  transform:translateY(-50%) rotate(-90deg);
+  font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:130px;
+  text-transform:uppercase; color:rgba(255,255,255,0.018);
+  white-space:nowrap; pointer-events:none; user-select:none;
+}
+
+.m-label {
+  grid-column:1; grid-row:1;
+  display:flex; flex-direction:column; align-items:center; padding-top:6px;
+}
+.m-label span {
+  font-size:8px; letter-spacing:0.22em; color:var(--amber);
+  text-transform:uppercase; writing-mode:vertical-rl;
+}
+.m-main { grid-column:2; grid-row:1; }
+.m-main h2 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:clamp(56px,6.5vw,104px); text-transform:uppercase;
+  letter-spacing:-0.02em; line-height:0.9; color:var(--cream); margin-bottom:52px;
+}
+.m-main h2 em { font-style:normal; color:var(--amber); }
+.m-body {
+  font-family:'EB Garamond',serif;
+  font-size:clamp(17px,1.3vw,21px); line-height:1.78; color:var(--cream);
+}
+.m-body p { margin-bottom:1.5em; }
+
+.m-aside {
+  grid-column:3; grid-row:1;
+  padding-top:155px; padding-left:40px;
+  border-left:1px solid var(--smoke);
+}
+.aside-note { margin-bottom:42px; }
+.aside-note h4 {
+  font-size:9px; letter-spacing:0.2em; color:var(--amber);
+  text-transform:uppercase; margin-bottom:10px;
+}
+.aside-note p {
+  font-family:'EB Garamond',serif; font-size:15px; color:var(--dim); line-height:1.75;
+}
+.skill-group { margin-top:44px; }
+.skill-group h4 { font-size:9px; letter-spacing:0.2em; color:var(--amber); text-transform:uppercase; margin-bottom:18px; }
+.s-row { margin-bottom:14px; }
+.s-top { display:flex; justify-content:space-between; font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:5px; }
+.s-track { height:1px; background:var(--smoke); position:relative; }
+.s-fill  { position:absolute; top:0; left:0; height:1px; background:var(--amber); }
+
+/* Photo strip below the text columns */
+.m-photo-strip {
+  grid-column:2/4; grid-row:2;
+  margin-top:72px;
+  display:grid; grid-template-columns:1fr 1fr; gap:3px;
+}
+.m-photo { position:relative; overflow:hidden; }
+.m-photo::after { content:''; display:block; padding-bottom:62%; }
+.m-photo img {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  object-fit:cover;
+  filter:brightness(0.66) saturate(0.52) contrast(1.1);
+  transition:filter 0.5s, transform 0.6s;
+}
+.m-photo:hover img { filter:brightness(0.84) saturate(0.8); transform:scale(1.03); }
+.m-photo-cap {
+  position:absolute; bottom:0; left:0; right:0; z-index:2;
+  padding:20px 16px 14px;
+  background:linear-gradient(transparent, rgba(8,8,7,0.9));
+  font-size:9px; letter-spacing:0.15em; color:var(--dim); text-transform:uppercase;
+}
+.m-photo-cap strong {
+  display:block; font-family:'Barlow Condensed',sans-serif;
+  font-size:20px; font-weight:700; color:var(--cream); letter-spacing:0.02em; margin-bottom:3px;
+}
+
+/* ============================================================
+   CREDITS
+============================================================ */
+#credits {
+  background:var(--coal);
+  border-top:1px solid var(--smoke);
+  padding:100px 40px 120px;
+  position:relative;
+}
+#credits::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:1px; height:100%; background:var(--smoke); opacity:0.4;
+}
+.credits-hd { text-align:center; margin-bottom:70px; }
+.credits-hd p { font-size:9px; letter-spacing:0.3em; color:var(--amber); text-transform:uppercase; margin-bottom:14px; }
+.credits-hd h2 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:clamp(46px,7vw,94px); text-transform:uppercase; letter-spacing:-0.02em; color:var(--cream);
+}
+.credits-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:3px;
+  max-width:1280px; margin:0 auto;
+}
+.c-col {
+  padding:34px 26px; border:1px solid var(--smoke);
+  background:rgba(255,255,255,0.012); position:relative;
+}
+.c-col::before {
+  content:attr(data-n); position:absolute; top:14px; right:14px;
+  font-size:8px; color:var(--smoke); letter-spacing:0.1em;
+}
+.c-col h3 {
+  font-size:9px; letter-spacing:0.2em; color:var(--amber); text-transform:uppercase;
+  margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--smoke);
+}
+.c-item {
+  margin-bottom:13px; padding-bottom:13px;
+  border-bottom:1px solid rgba(255,255,255,0.045);
+}
+.c-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.c-show {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:19px; text-transform:uppercase; color:var(--cream); letter-spacing:0.02em; line-height:1.2;
+}
+.c-role { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.1em; margin-top:3px; }
+
+/* ============================================================
+   CONTACT
+============================================================ */
+.contact-wrap {
+  background:var(--black); border-top:2px solid var(--amber);
+}
+#contact {
+  padding:100px 40px 120px;
+  display:grid; grid-template-columns:1fr 1fr; gap:80px;
+  max-width:1380px; margin:0 auto;
+}
+.ct-left h2 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:900;
+  font-size:clamp(64px,9vw,136px); text-transform:uppercase;
+  letter-spacing:-0.03em; line-height:0.85; color:var(--cream); margin-bottom:40px;
+}
+.ct-left h2 span { color:var(--amber); }
+.ct-meta { font-size:10px; letter-spacing:0.15em; color:var(--dim); text-transform:uppercase; line-height:2.8; }
+.ct-meta a { color:var(--cream); text-decoration:none; border-bottom:1px solid var(--smoke); padding-bottom:1px; transition:color 0.2s, border-color 0.2s; }
+.ct-meta a:hover { color:var(--amber); border-color:var(--amber); }
+.ct-right { display:flex; flex-direction:column; justify-content:flex-end; }
+.callsheet {
+  border:1px solid var(--smoke); padding:28px;
+  background:rgba(255,255,255,0.012); position:relative;
+}
+.callsheet::before {
+  content:'CALL SHEET — GENERAL AVAIL.';
+  position:absolute; top:-9px; left:20px;
+  background:var(--black); padding:0 8px;
+  font-size:8px; letter-spacing:0.2em; color:var(--amber); text-transform:uppercase;
+}
+.cs-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:9px; text-transform:uppercase; letter-spacing:0.1em;
+}
+.cs-row:last-child { border-bottom:none; }
+.cs-row span:first-child { color:var(--dim); }
+.cs-row span:last-child { color:var(--cream); }
+.cs-avail { color:var(--green) !important; display:inline-flex; align-items:center; gap:6px; }
+.cs-avail::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.5s ease-in-out infinite; }
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer {
+  background:var(--black); border-top:1px solid var(--smoke);
+  padding:28px 40px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+footer p { font-size:9px; letter-spacing:0.15em; color:var(--dim); text-transform:uppercase; }
+footer span { color:var(--amber); }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:960px) {
+  .hero-inner { grid-template-columns:1fr; padding:120px 24px 60px; }
+  .hero-sidebar { display:none; }
+  .hero-stats { flex-wrap:wrap; gap:20px; padding-top:40px; }
+  #manifesto {
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto auto;
+    padding:72px 24px;
+  }
+  #manifesto::before { display:none; }
+  .m-label { display:none; }
+  .m-main  { grid-column:1; grid-row:1; }
+  .m-aside { grid-column:1; grid-row:2; padding:36px 0 0; border-left:none; border-top:1px solid var(--smoke); }
+  .m-photo-strip { grid-column:1; grid-row:3; margin-top:40px; grid-template-columns:1fr; }
+  .monitor-grid { grid-template-columns:1fr; }
+  .m-v1,.m-v2,.m-v3 { grid-column:1; }
+  .m-p1,.m-p2,.m-p3 { grid-column:1; }
+  .m-banner { grid-column:1; }
+  .m-banner.ar-wide::after { padding-bottom:56.25%; }
+  .credits-grid { grid-template-columns:1fr; }
+  #contact { grid-template-columns:1fr; gap:40px; padding:72px 24px; }
+  .feed-header { padding:60px 24px 0; flex-direction:column; gap:12px; }
+  nav { padding:12px 16px; }
+  footer { flex-direction:column; gap:8px; text-align:center; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="scan-sweep"></div>
+
+<!-- ============================================================ NAV -->
+<nav>
+  <a href="#hero" class="nav-id">
+    CAM-OP
+    <span>STEADICAM / HANDHELD</span>
+    <span>25 YRS — LOS ANGELES, CA</span>
+  </a>
+  <div class="nav-links">
+    <a href="#feed">REEL</a>
+    <a href="#manifesto">ABOUT</a>
+    <a href="#credits">CREDITS</a>
+    <a href="#contact">CONTACT</a>
+  </div>
+</nav>
+
+<!-- ============================================================ HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-inner">
+
+    <div class="hero-title">
+      <div class="hero-eyebrow">
+        <span class="rec"></span>
+        LIVE — STEADICAM OPERATOR — CAMERA
+      </div>
+      <div class="hero-name">
+        <span style="position:relative;z-index:2;">STILL<br>ROLLING</span>
+        <div class="g1" aria-hidden="true">STILL<br>ROLLING</div>
+        <div class="g2" aria-hidden="true">STILL<br>ROLLING</div>
+      </div>
+      <div class="hero-sub">25 Years in Motion</div>
+    </div>
+
+    <div class="hero-sidebar">
+      <div class="meta-block">
+        <strong>TIMECODE</strong>
+        <div class="timecode" id="tc">00:00:00:00</div>
+      </div>
+      <div class="meta-block">
+        <strong>STATUS</strong>
+        <div class="avail">AVAILABLE</div>
+      </div>
+      <div class="meta-block">
+        <strong>CAMERA</strong>
+        CAM: A<br>FPS: 59.94<br>FORMAT: 4K RAW<br>RIG: STEADICAM
+      </div>
+      <div class="meta-block">
+        <strong>LOCATION</strong>
+        LOS ANGELES, CA<br>TRAVEL: WORLDWIDE
+      </div>
+      <div class="meta-block">
+        <strong>UNION</strong>
+        IATSE LOCAL 600<br>CAM OPERATOR
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat"><strong>25</strong>Years Operating</div>
+      <div class="stat"><strong>1K+</strong>Hours Reality</div>
+      <div class="stat"><strong>500+</strong>Live Broadcasts</div>
+      <div class="scroll-hint">SCROLL THE FEED</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ FEED -->
+<section id="feed">
+  <div class="feed-header">
+    <h2>THE<br>FEED</h2>
+    <div class="feed-meta">
+      SELECTED WORK — 2000–2025<br>
+      <span>07 FRAMES / ACTIVE</span>
+    </div>
+  </div>
+
+  <div class="monitor-grid">
+
+    <!-- VIDEO ROW -->
+    <div class="monitor ar-16-9 m-v1">
+      <div class="cm tl"></div><div class="cm tr"></div><div class="cm bl"></div><div class="cm br"></div>
+      <iframe src="https://player.vimeo.com/video/1111293964?autoplay=1&loop=1&muted=1&background=1&title=0&byline=0&portrait=0&color=E8530A&dnt=1"
+        allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <div class="hud">
+        <div class="hud-top">
+          <div class="tally">ON AIR</div>
+          <div class="hud-cam">CAM: A<br>FPS: 59.94<br>REEL 01</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">Reel 01<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">BROADCAST — SPORTS — LIVE</span></div>
+          <div class="hud-year">2025</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="monitor ar-16-9 m-v2">
+      <div class="cm tl"></div><div class="cm br"></div>
+      <iframe src="https://player.vimeo.com/video/534907605?autoplay=1&loop=1&muted=1&background=1&title=0&byline=0&portrait=0&color=E8530A&dnt=1"
+        allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <div class="hud">
+        <div class="hud-top">
+          <div class="tally">ON AIR</div>
+          <div class="hud-cam">CAM: B<br>FPS: 29.97<br>REEL 02</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">Reel 02<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">STEADICAM — REALITY — FEATURES</span></div>
+          <div class="hud-year">2021</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="monitor ar-16-9 m-v3">
+      <div class="cm tl"></div><div class="cm br"></div>
+      <iframe src="https://player.vimeo.com/video/313399770?autoplay=1&loop=1&muted=1&background=1&title=0&byline=0&portrait=0&color=E8530A&dnt=1"
+        allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <div class="hud">
+        <div class="hud-top">
+          <div class="tally">ON AIR</div>
+          <div class="hud-cam">CAM: C<br>FPS: 23.98<br>REEL 03</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">Reel 03<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">SCRIPTED — MV — COMMERCIAL</span></div>
+          <div class="hud-year">2019</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHOTO ROW -->
+    <div class="monitor ar-4-3 m-p1">
+      <div class="cm tl"></div><div class="cm br"></div>
+      <img src="Screenshot_2025-07-01_at_19_00_47.png" alt="Inside the NBA — TNT Halftime Report">
+      <div class="hud">
+        <div class="hud-top">
+          <div class="hud-badge"><span class="rec"></span>LIVE BROADCAST</div>
+          <div class="hud-cam">IN STUDIO<br>FPS: 59.94<br>STEADICAM</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">Inside the NBA<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">TNT / AMEX HALFTIME REPORT</span></div>
+          <div class="hud-year">2020–2025</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="monitor ar-4-3 m-p2">
+      <div class="cm tl"></div><div class="cm br"></div>
+      <img src="1J3A1051.JPG" alt="Steadicam operator at stadium">
+      <div class="hud">
+        <div class="hud-top">
+          <div class="hud-badge">STEADICAM</div>
+          <div class="hud-cam">ARENA FLOOR<br>RIG: PRO<br>FPS: 29.97</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">Live Events<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">STADIUM / ARENA FLOOR</span></div>
+          <div class="hud-year">ONGOING</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="monitor ar-4-3 m-p3">
+      <div class="cm tl"></div><div class="cm br"></div>
+      <img src="A660E808-38B7-45EC-870C-51951F003E6E_2.JPG" alt="PFL MMA inside the cage">
+      <div class="hud">
+        <div class="hud-top">
+          <div class="hud-badge">CAGE CAM</div>
+          <div class="hud-cam">PFL / ESPN+<br>GIMBAL<br>170 LBS</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">PFL MMA<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">ESPN+ / INSIDE THE CAGE</span></div>
+          <div class="hud-year">2022–PRES</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER ROW -->
+    <div class="monitor ar-wide m-banner">
+      <div class="cm tl"></div><div class="cm tr"></div><div class="cm bl"></div><div class="cm br"></div>
+      <img src="B7382DAF-F076-4C9E-AE8F-E7F8A699185C_1_201_a.jpeg" alt="ESPN First Take — Dallas Cowboys">
+      <div class="hud">
+        <div class="hud-top">
+          <div class="hud-badge">ESPN / ON LOCATION</div>
+          <div class="hud-cam">CAM: B<br>FIRST TAKE<br>DALLAS TX</div>
+        </div>
+        <div class="hud-bot">
+          <div class="hud-label">ESPN First Take — Road Trip<br><span style="font-weight:300;opacity:0.6;font-size:0.65em;">DALLAS COWBOYS — FORD CENTER — FRISCO TX</span></div>
+          <div class="hud-year">2019–2024</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <div class="t-item">Inside the NBA <span class="t-sep"> — </span></div>
+    <div class="t-item">ESPN First Take <span class="t-sep"> — </span></div>
+    <div class="t-item">PFL MMA on ESPN+ <span class="t-sep"> — </span></div>
+    <div class="t-item">DAZN Combat Sports <span class="t-sep"> — </span></div>
+    <div class="t-item">Scripted Television <span class="t-sep"> — </span></div>
+    <div class="t-item">Feature Films <span class="t-sep"> — </span></div>
+    <div class="t-item">1000+ Hours Reality <span class="t-sep"> — </span></div>
+    <div class="t-item">Music Videos <span class="t-sep"> — </span></div>
+    <div class="t-item">Breaking News <span class="t-sep"> — </span></div>
+    <div class="t-item">IATSE Local 600 <span class="t-sep"> — </span></div>
+    <div class="t-item">Inside the NBA <span class="t-sep"> — </span></div>
+    <div class="t-item">ESPN First Take <span class="t-sep"> — </span></div>
+    <div class="t-item">PFL MMA on ESPN+ <span class="t-sep"> — </span></div>
+    <div class="t-item">DAZN Combat Sports <span class="t-sep"> — </span></div>
+    <div class="t-item">Scripted Television <span class="t-sep"> — </span></div>
+    <div class="t-item">Feature Films <span class="t-sep"> — </span></div>
+    <div class="t-item">1000+ Hours Reality <span class="t-sep"> — </span></div>
+    <div class="t-item">Music Videos <span class="t-sep"> — </span></div>
+    <div class="t-item">Breaking News <span class="t-sep"> — </span></div>
+    <div class="t-item">IATSE Local 600 <span class="t-sep"> — </span></div>
+  </div>
+</div>
+
+<!-- ============================================================ MANIFESTO -->
+<section id="manifesto">
+
+  <div class="m-label">
+    <span>ABOUT // OPERATOR // MANIFESTO</span>
+  </div>
+
+  <div class="m-main">
+    <h2>STILL<br><em>MOVING</em><br>FORWARD</h2>
+    <div class="m-body">
+      <p>Twenty-five years. Not in a straight line — nothing worth doing ever is. From the chaos of a breaking news floor at 2 AM to the engineered silence of a scripted set waiting for magic. From inside a cage while two fighters try to end each other, to a studio where legends argue about who was greater. Every shot is the same problem: find the truth in the frame before the moment disappears.</p>
+      <p>A Steadicam is not a camera system. It's a philosophy. The rig lives between you and the shot — isolating intention from tremor, separating what you mean from what your body does under pressure. After 25 years, you stop operating it. You wear it. You think through it.</p>
+      <p>The industry has changed three times over. I've changed with it, and sometimes ahead of it. Reality television taught me to never stop moving and never stop anticipating. Live sports taught me that perfection is the enemy of the essential. Scripted work taught me that preparation is invisible when it's working. News taught me that nothing matters except what happens next.</p>
+      <p>I'm not a legend. I'm still grinding. Still evolving. Still finding better ways to carry the weight.</p>
+    </div>
+  </div>
+
+  <div class="m-aside">
+    <div class="aside-note">
+      <h4>// Philosophy</h4>
+      <p>The best shot is the one nobody notices because it felt so inevitable they thought it was real life.</p>
+    </div>
+    <div class="aside-note">
+      <h4>// On Steadicam</h4>
+      <p>The rig is just a tool. The operator is the instrument. Separate your muscle from your intention and magic happens.</p>
+    </div>
+    <div class="aside-note">
+      <h4>// On Live Sports</h4>
+      <p>You can't manufacture a Shaq laugh. You can only be positioned to catch it when it happens.</p>
+    </div>
+    <div class="skill-group">
+      <h4>// Discipline Depth</h4>
+      <div class="s-row"><div class="s-top"><span>STEADICAM</span><span>25 YRS</span></div><div class="s-track"><div class="s-fill" style="width:98%"></div></div></div>
+      <div class="s-row"><div class="s-top"><span>HANDHELD</span><span>25 YRS</span></div><div class="s-track"><div class="s-fill" style="width:97%"></div></div></div>
+      <div class="s-row"><div class="s-top"><span>REALITY TV</span><span>1000+ HRS</span></div><div class="s-track"><div class="s-fill" style="width:93%"></div></div></div>
+      <div class="s-row"><div class="s-top"><span>LIVE SPORTS</span><span>15 YRS</span></div><div class="s-track"><div class="s-fill" style="width:88%"></div></div></div>
+      <div class="s-row"><div class="s-top"><span>SCRIPTED</span><span>20 YRS</span></div><div class="s-track"><div class="s-fill" style="width:85%"></div></div></div>
+      <div class="s-row"><div class="s-top"><span>BREAKING NEWS</span><span>12 YRS</span></div><div class="s-track"><div class="s-fill" style="width:78%"></div></div></div>
+    </div>
+  </div>
+
+  <div class="m-photo-strip">
+    <div class="m-photo">
+      <img src="1J3A1051.JPG" alt="Steadicam operator — live arena event">
+      <div class="m-photo-cap">
+        <strong>On the Floor</strong>Steadicam — Live Arena Event
+      </div>
+    </div>
+    <div class="m-photo">
+      <img src="A660E808-38B7-45EC-870C-51951F003E6E_2.JPG" alt="Inside the cage — PFL MMA">
+      <div class="m-photo-cap">
+        <strong>Inside the Cage</strong>PFL MMA — ESPN+ Fight Night
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================================================ CREDITS -->
+<section id="credits">
+  <div class="credits-hd">
+    <p>// FILMOGRAPHY &amp; BROADCAST CREDITS</p>
+    <h2>THE WORK</h2>
+  </div>
+
+  <div class="credits-grid">
+
+    <div class="c-col" data-n="001">
+      <h3>// Live Sports &amp; Broadcast</h3>
+      <div class="c-item"><div class="c-show">Inside the NBA</div><div class="c-role">STEADICAM OPERATOR — TNT / AMEX HALFTIME</div></div>
+      <div class="c-item"><div class="c-show">ESPN First Take</div><div class="c-role">CAMERA OPERATOR — ROAD TRIPS / REMOTE</div></div>
+      <div class="c-item"><div class="c-show">PFL MMA on ESPN+</div><div class="c-role">CAGE CAM / STEADICAM — FIGHT NIGHTS</div></div>
+      <div class="c-item"><div class="c-show">DAZN Combat Sports</div><div class="c-role">STEADICAM — BOXING / MMA</div></div>
+      <div class="c-item"><div class="c-show">NBA on TNT</div><div class="c-role">HANDHELD / STEADICAM — PLAYOFF COVERAGE</div></div>
+      <div class="c-item"><div class="c-show">NFL Coverage</div><div class="c-role">SIDELINE CAMERA — NETWORK BROADCAST</div></div>
+    </div>
+
+    <div class="c-col" data-n="002">
+      <h3>// Reality &amp; Unscripted</h3>
+      <div class="c-item"><div class="c-show">Network Reality Series</div><div class="c-role">1000+ HOURS HANDHELD — MULTIPLE SHOWS</div></div>
+      <div class="c-item"><div class="c-show">Competition Formats</div><div class="c-role">A-CAMERA — NETWORK &amp; STREAMING</div></div>
+      <div class="c-item"><div class="c-show">Docuseries</div><div class="c-role">HANDHELD / STEADICAM — EPISODIC DOC</div></div>
+      <div class="c-item"><div class="c-show">Music Competition</div><div class="c-role">FLOOR CAMERA — LIVE BROADCAST + STUDIO</div></div>
+      <div class="c-item"><div class="c-show">Sports Reality</div><div class="c-role">EMBEDDED CAMERA — ACCESS JOURNALISM</div></div>
+      <div class="c-item"><div class="c-show">Breaking News</div><div class="c-role">ENG CAMERA — NETWORK / LIVE EVENTS</div></div>
+    </div>
+
+    <div class="c-col" data-n="003">
+      <h3>// Scripted / Film / MV</h3>
+      <div class="c-item"><div class="c-show">Feature Films</div><div class="c-role">STEADICAM OPERATOR — MULTIPLE PRODS.</div></div>
+      <div class="c-item"><div class="c-show">Network Drama</div><div class="c-role">A-CAMERA STEADICAM — EPISODIC TV</div></div>
+      <div class="c-item"><div class="c-show">Streaming Originals</div><div class="c-role">CAMERA OPERATOR — PREMIUM DRAMA</div></div>
+      <div class="c-item"><div class="c-show">Music Videos</div><div class="c-role">STEADICAM / HANDHELD — MAJOR LABELS</div></div>
+      <div class="c-item"><div class="c-show">Commercials</div><div class="c-role">STEADICAM — NATIONAL / INTL SPOTS</div></div>
+      <div class="c-item"><div class="c-show">Branded Content</div><div class="c-role">CAMERA OPERATOR — PREMIUM BRANDS</div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ CONTACT -->
+<div class="contact-wrap">
+  <div id="contact">
+    <div class="ct-left">
+      <h2>LET'S<br><span>MAKE</span><br>SOMETHING</h2>
+      <div class="ct-meta">
+        <div>EMAIL &nbsp;&nbsp;&nbsp;&nbsp;<a href="mailto:operator@yoursite.com">operator@yoursite.com</a></div>
+        <div>PHONE &nbsp;&nbsp;&nbsp;<a href="tel:+13235550100">+1 (323) 555-0100</a></div>
+        <div>UNION &nbsp;&nbsp;&nbsp;&nbsp;IATSE LOCAL 600</div>
+        <div>BASE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOS ANGELES, CA</div>
+        <div>TRAVEL &nbsp;&nbsp;WORLDWIDE</div>
+        <div>REEL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">VIMEO — REQUEST LINK</a></div>
+      </div>
+    </div>
+    <div class="ct-right">
+      <div class="callsheet">
+        <div class="cs-row"><span>STATUS</span><span class="cs-avail">ACCEPTING PROJECTS</span></div>
+        <div class="cs-row"><span>DISCIPLINES</span><span>STEADICAM / HANDHELD</span></div>
+        <div class="cs-row"><span>FORMATS</span><span>LIVE / SCRIPTED / DOC</span></div>
+        <div class="cs-row"><span>RIG OWNED</span><span>TIFFEN STEADICAM PRO</span></div>
+        <div class="cs-row"><span>PREFERRED CAM</span><span>SONY / ARRI / RED</span></div>
+        <div class="cs-row"><span>PASSPORT</span><span>US — CLEARED</span></div>
+        <div class="cs-row"><span>RESPONSE</span><span>&lt; 24 HOURS</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 — CAMERA OPERATOR — <span>IATSE LOCAL 600</span></p>
+  <p>STILL ROLLING <span>—</span> ALWAYS MOVING</p>
+  <p>LOS ANGELES <span>/</span> WORLDWIDE</p>
+</footer>
+
+<script>
+  // Live timecode
+  const tcEl = document.getElementById('tc');
+  function updateTC() {
+    const n = new Date(), p = x => String(x).padStart(2,'0');
+    const f = String(Math.floor(n.getMilliseconds() / (1000/29.97))).padStart(2,'0');
+    tcEl.textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}:${f}`;
+  }
+  setInterval(updateTC, 33);
+  updateTC();
+
+  // Parallax on hero bg
+  document.addEventListener('mousemove', e => {
+    const bg = document.querySelector('.hero-bg');
+    if (!bg) return;
+    const x = (e.clientX / window.innerWidth  - 0.5) * 14;
+    const y = (e.clientY / window.innerHeight - 0.5) * 14;
+    bg.style.transform = `scale(1.07) translate(${x}px,${y}px)`;
+  });
+
+  // Brief glitch flash on monitor hover
+  document.querySelectorAll('.monitor').forEach(m => {
+    m.addEventListener('mouseenter', () => {
+      m.style.filter = 'hue-rotate(18deg) brightness(1.1)';
+      setTimeout(() => {
+        m.style.filter = 'hue-rotate(-8deg)';
+        setTimeout(() => { m.style.filter = ''; }, 70);
+      }, 140);
+    });
+  });
+</script>
+</body>
+</html>
